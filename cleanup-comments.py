@@ -3,8 +3,11 @@ import re
 import argparse
 import os
 import platform
+import sys
 
 def strip_pattern_from_csv(input_file, output_file, pattern):
+    csv.field_size_limit(sys.maxsize)
+
     with open(input_file, 'r') as infile, open(output_file, 'w', newline='') as outfile:
         reader = csv.reader(infile)
         writer = csv.writer(outfile)
