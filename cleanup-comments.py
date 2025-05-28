@@ -1,6 +1,5 @@
 import csv
 import re
-import paramiko
 import argparse
 import os
 import platform
@@ -15,29 +14,6 @@ def strip_pattern_from_csv(input_file, output_file, pattern):
             new_row = [re.sub(pattern, '', cell) for cell in row]
             writer.writerow(new_row)
 
-
-def sftp_upload_file(local_file_path, remote_file_path, hostname, port, username, password):
-    # Create an SFTP client
-    transport = paramiko.Transport((hostname, port))
-    transport.connect(username=username, password=password)
-    sftp = paramiko.SFTPClient.from_transport(transport)
-
-    # Upload the file
-    try:
-        sftp.put(local_file_path, remote_file_path)
-    except Exception as ex:
-        print(ex)
-
-    # Close the SFTP connection
-    sftp.close()
-    transport.close()
-
-# SFTP connection details
-remote_file_path = '/'
-hostname = os.environ.get("SFTP_HOSTNAME", "test.rebex.net") 
-port = os.environ.get("SFTP_HOSTNAME", 22) 
-username = os.environ.get("SFTP_HOSTNAME", "demo")
-password = os.environ.get("SFTP_HOSTNAME", 'password')
 
 # Initialize parser
 parser = argparse.ArgumentParser(description="Initializing the parser")
@@ -59,7 +35,6 @@ if args.file:
 if args.folder:
     print(f"Copying {output_file} into {args.folder} dir")
     plat = platform.system()
-    # sftp_upload_file(f"./{output_file}", remote_file_path, hostname, port, username, password)
     if plat in ["Darwin", "Linux"]:
         os.popen(f"cp {output_file} {args.folder}")
     else:
