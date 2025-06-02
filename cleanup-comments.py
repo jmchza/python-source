@@ -2,12 +2,11 @@ import csv
 import re
 import argparse
 import os
-import platform
 import sys
 
 def strip_pattern_from_csv(input_file, output_file, pattern):
     csv.field_size_limit(sys.maxsize)
-
+    
     with open(input_file, 'r') as infile, open(output_file, 'w', newline='') as outfile:
         reader = csv.reader(infile)
         writer = csv.writer(outfile)
@@ -26,24 +25,29 @@ parser.add_argument("-f", "--folder", type=str, help="Name of the remote Folder 
 parser.add_argument("-c", "--cleanup", type=str, help="Set to true if you want to delete all intermedium files at the end")
 
 args = parser.parse_args()
-intermedium_file = 'bmw.int.csv'
+intermedium_file = 'int.csv'
 
 if args.file:
-    print(f"Processing file: {args.file} .....")
-    strip_pattern_from_csv(args.file, intermedium_file, r'REG#\[.+\]')
-    file_name = args.file.split(".csv")
-    output_file = file_name[0] + '.cleanedup.csv'
-
-    strip_pattern_from_csv(intermedium_file, output_file, r'VIM#\[.+\]')
+    print(f"Processing file: {args.file} ..... {os.sep}")
 if args.folder:
-    print(f"Copying {output_file} into {args.folder} dir")
-    plat = platform.system()
-    if plat in ["Darwin", "Linux"]:
-        os.popen(f"cp {output_file} {args.folder}")
+    strip_pattern_from_csv(args.file, os.path.join(args.folder, intermedium_file), r'REG#\[.+\]')
+    
+    file_name_list = args.file.split(".")
+    
+    if "/" in file_name_list[0]:
+        file_name_array = file_name_list[0].split("/")
+        file_name = file_name_array[-1]
     else:
-        os.popen(f"copy {output_file} {args.folder}")
+        file_name = file_name_list[0]
+    print(file_name)
+
+    output_file = os.path.join(args.folder, file_name + '.cleanedup.' + file_name_list[-1])
+
+    print(f"Stripping second pattern from intermedium files: {os.path.join(args.folder, intermedium_file)}")
+    strip_pattern_from_csv(os.path.join(args.folder, intermedium_file), output_file, r'VIM#\[.+\]')
+    
 else:
     print("ERROR: Remote sftp folder has not been configured")
 if args.cleanup:
-    print("Cleaning up intermedium files...")
-    os.remove(f"./{intermedium_file}")
+    print(f"Cleaning up intermedium files... {intermedium_file}")
+    os.remove(f"{os.path.join(args.folder, intermedium_file)}")
