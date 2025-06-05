@@ -7,7 +7,6 @@ filelock==3.13.1
 ipython==8.27.0
 ipywidgets==7.8.1
 keyring==24.3.1
-paramiko==3.5.1
 pillow==10.4.0
 pip==24.2
 pyOpenSSL==24.2.1

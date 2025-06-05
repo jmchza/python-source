@@ -4,6 +4,8 @@ import argparse
 import os
 import sys
 import pyodbc
+import psycopg2
+
 
 def strip_pattern_from_csv(input_file, output_file, pattern, replacedWith=''):
     csv.field_size_limit(sys.maxsize)
@@ -16,6 +18,14 @@ def strip_pattern_from_csv(input_file, output_file, pattern, replacedWith=''):
             # Apply regex to each cell in the row
             new_row = [re.sub(pattern, replacedWith, cell) for cell in row]
             writer.writerow(new_row)
+            
+def get_file_name(file_name_list ):
+    
+    if "/" in file_name_list[0]:
+        file_name_array = file_name_list[0].split("/")
+        return file_name_array[-1]
+    
+    return file_name_list[0]
 
 
 def connect_and_dump_to(query, output_file, pattern, replacedWith=''):
@@ -25,11 +35,19 @@ def connect_and_dump_to(query, output_file, pattern, replacedWith=''):
     database = os.getenv("SERVER_DB",'your_server_db')
     username = os.getenv("SERVER_USER",'your_server_username')
     password = os.getenv("SERVER_PW",'your_server_password')
+    
+    # Connect to postgres
+    # connection = psycopg2.connect(
+    #     dbname=database,
+    #     user=username,
+    #     password=password,
+    #     host=server
+    # )
 
-    # Create the connection string
-    connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+    # # Create the connection string
+    connection_string = f'DRIVER={'ODBC Driver 18 for SQL Server'};SERVER={server};DATABASE={database};UID={username};PWD={password}'
 
-    # Establish the connection
+    # Connect to SQL Server
     connection = pyodbc.connect(connection_string)
 
     # Create a cursor object
@@ -37,19 +55,21 @@ def connect_and_dump_to(query, output_file, pattern, replacedWith=''):
 
     # Execute a query
     cursor.execute(query)
+    
+    row = cursor.fetchone()
     with open(output_file, 'w', newline='') as outfile:
         # Fetch and print the result
-        row = cursor.fetchone()
-        print(f"row:  {type(row)} len: {len(row)}")
-        writer = csv.writer(outfile)
-        
-        new_row = [re.sub(pattern, replacedWith, cell) for cell in row[0]]
-        writer.writerow(new_row)
+        while row is not None:
+            print(f"row:  {type(row)} len: {len(row)}")
+            writer = csv.writer(outfile)
+            print(row)
+            new_row = [re.sub(pattern, replacedWith, str(cell)) for cell in row]
+            writer.writerow(new_row)
+            row = cursor.fetchone()
+                
         
     # Close the connection
     connection.close()
-
-
 
 # Initialize parser
 parser = argparse.ArgumentParser(description="Initializing the parser")
@@ -63,7 +83,7 @@ args = parser.parse_args()
 intermedium_file = 'int.csv'
 
 if args.useDB and args.file and args.folder:
-    connect_and_dump_to("SELECT comments FROM tbl_CRM_LeadConversion", args.file, r'REG#\[.+\]')
+    connect_and_dump_to("SELECT * FROM cars", args.file, r'REG#\[.+\]')
 if args.file:
     print(f"Processing file: {args.file} .....")
 if args.folder:
@@ -71,11 +91,7 @@ if args.folder:
     
     file_name_list = args.file.split(".")
     
-    if "/" in file_name_list[0]:
-        file_name_array = file_name_list[0].split("/")
-        file_name = file_name_array[-1]
-    else:
-        file_name = file_name_list[0]
+    file_name = get_file_name(file_name_list)
     print(file_name)
 
     output_file = os.path.join(args.folder, file_name + '.cleanedup.' + file_name_list[-1])

@@ -23,11 +23,15 @@ set SFTP_HOSTNAME=password
 ## To run the script
 
 > Parametters
-* -n file to process 
-* -f remotePAth to sftp server
+* -n Name of the file to remove REG and VIN from Comments
+* -f Name of the remote Folder in the sftp server to place the fle into
+* -c Set to true if you want to delete all intermedium files at the end
+* -d Set to true if you want to extract data from DB first instead of providing a source file
+
+NOTE: if you specify a DB to use as a source of data, you sill need to provide a file name which is going tobe used to save that extracted data to.
 
 ```
-python cleanup-comments.py -n bmw.csv -f /
+python cleanup-comments.py -n bmw.csv -f ./tmp -c true 
 ```
 
 
