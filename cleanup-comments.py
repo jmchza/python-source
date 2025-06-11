@@ -111,14 +111,25 @@ if args.folder:
     intFile = strip_pattern_from_csv("7", intFile, args.folder, r'VIN- .{17}', True)
     intFile = strip_pattern_from_csv("8", intFile, args.folder, r'VIN.[ \t].{17}', True)
     
-    intFile = strip_pattern_from_csv(args.file, intFile, args.folder, r'VIN is .{17}', False)
+    intFile = strip_pattern_from_csv("9", intFile, args.folder, r'mvRegistration=.{7}', True)
+    intFile = strip_pattern_from_csv("10", intFile, args.folder, r'chassis=.{17}', True)
+    intFile = strip_pattern_from_csv("11", intFile, args.folder, r'chassis number .{17}', True)
+    intFile = strip_pattern_from_csv("12", intFile, args.folder, r'chassis number is .{7}', True)
+    intFile = strip_pattern_from_csv("13", intFile, args.folder, r'chassis below .{17}', True)
+    intFile = strip_pattern_from_csv("14", intFile, args.folder, r'[c,C]hassis:.{17}', True)
+    intFile = strip_pattern_from_csv("15", intFile, args.folder, r'chassis .{17}', True)
+    intFile = strip_pattern_from_csv("16", intFile, args.folder, r'Chassis number...{17}', True)
+    intFile = strip_pattern_from_csv("17", intFile, args.folder, r'[c,C]hassis\(.{17}\)', True)
+    intFile = strip_pattern_from_csv("18", intFile, args.folder, r'VIN/Chassis/Frame No is .{17}', True)
+    intFile = strip_pattern_from_csv("19", intFile, args.folder, r'Chassis #: .{17}', True)
     
+    intFile = strip_pattern_from_csv(args.file, intFile, args.folder, r'VIN is .{17}', False)
     
 else:
     print("ERROR: Remote sftp folder has not been configured")
 if args.cleanup:
     print(f"Cleaning up intermedium files... ")
     i=1
-    while i <= 8:
+    while i <= 19:
         os.remove(f"{os.path.join(args.folder, f"int.{i}.csv")}")
         i+=1
