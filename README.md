@@ -1,4 +1,4 @@
-# Clean up REG and VIN fields from field Comments from bmw and mini csv files
+# Clean up REG and VIN fields from field Comments from bmw and mini csv files or DB
 
 ## SETUP 
 Once you the venv environemt has been created and before you are able to run the right command you need to set the folowing environment variables:

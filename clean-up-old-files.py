@@ -23,6 +23,6 @@ if args.folder:
     for file in filesArray:
         if args.verbose:
             print(f"Deleting file: {file}")
-            # os.remove(file)
+        # os.remove(file)
 else:
     print("ERROR: Remote sftp folder has not been configured")

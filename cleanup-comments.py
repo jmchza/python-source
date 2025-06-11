@@ -7,9 +7,21 @@ import pyodbc
 import psycopg2
 
 
-def strip_pattern_from_csv(input_file, output_file, pattern, replacedWith=''):
+
+def strip_pattern_from_csv(srcFileOrIntNumber, input_file, folder, pattern, isIntermedium=False, replacedWith=''):
     csv.field_size_limit(sys.maxsize)
-    
+    # print(f"{srcFileOrIntNumber}, {input_file}, {folder}")
+    if isIntermedium:
+        intermedium_file = f"int.{srcFileOrIntNumber}.csv"
+        output_file = os.path.join(folder, intermedium_file)
+    else:
+        file_name_list = srcFileOrIntNumber.split(".")
+        file_name = get_file_name(file_name_list)
+        
+        output_file = os.path.join(folder, file_name + '.cleanedup.' + file_name_list[-1])
+        
+    print(f"Input File: {input_file}, Output File: {output_file}")
+
     with open(input_file, 'r') as infile, open(output_file, 'w', newline='') as outfile:
         reader = csv.reader(infile)
         writer = csv.writer(outfile)
@@ -18,8 +30,9 @@ def strip_pattern_from_csv(input_file, output_file, pattern, replacedWith=''):
             # Apply regex to each cell in the row
             new_row = [re.sub(pattern, replacedWith, cell) for cell in row]
             writer.writerow(new_row)
+    return output_file
             
-def get_file_name(file_name_list ):
+def get_file_name(file_name_list):
     
     if "/" in file_name_list[0]:
         file_name_array = file_name_list[0].split("/")
@@ -80,27 +93,32 @@ parser.add_argument("-c", "--cleanup", type=str, help="Set to true if you want t
 parser.add_argument("-d", "--useDB", type=str, help="Set to true if you want to extract data from DB first instead of providing a source file")
 
 args = parser.parse_args()
-intermedium_file = 'int.csv'
 
 if args.useDB and args.file and args.folder:
     connect_and_dump_to("SELECT * FROM cars", args.file, r'REG#\[.+\]')
 if args.file:
-    print(f"Processing file: {args.file} .....")
+    print(f"Processing src file: {args.file} .....")
 if args.folder:
-    strip_pattern_from_csv(args.file, os.path.join(args.folder, intermedium_file), r'REG#\[.+\]')
+    intFile = strip_pattern_from_csv("1", args.file, args.folder, r'REG#\[.+\]', True)
     
-    file_name_list = args.file.split(".")
+    intFile = strip_pattern_from_csv("2", intFile, args.folder, r'#VIN=.{17}', True)
     
-    file_name = get_file_name(file_name_list)
-    print(file_name)
-
-    output_file = os.path.join(args.folder, file_name + '.cleanedup.' + file_name_list[-1])
-
-    print(f"Stripping second pattern from intermedium files: {os.path.join(args.folder, intermedium_file)}")
-    strip_pattern_from_csv(os.path.join(args.folder, intermedium_file), output_file, r'VIM#\[.+\]')
+    print(f"Stripping second pattern from intermedium files: {intFile}")
+    intFile = strip_pattern_from_csv("3", intFile, args.folder, r'VIN# is .{17}', True)
+    intFile = strip_pattern_from_csv("4", intFile, args.folder, r'VIN:.{17}.', True)
+    intFile = strip_pattern_from_csv("5", intFile, args.folder, r'VIN Number: .{17}', True)
+    intFile = strip_pattern_from_csv("6", intFile, args.folder, r'VIN .{17}', True)
+    intFile = strip_pattern_from_csv("7", intFile, args.folder, r'VIN- .{17}', True)
+    intFile = strip_pattern_from_csv("8", intFile, args.folder, r'VIN.[ \t].{17}', True)
+    
+    intFile = strip_pattern_from_csv(args.file, intFile, args.folder, r'VIN is .{17}', False)
+    
     
 else:
     print("ERROR: Remote sftp folder has not been configured")
 if args.cleanup:
-    print(f"Cleaning up intermedium files... {intermedium_file}")
-    os.remove(f"{os.path.join(args.folder, intermedium_file)}")
+    print(f"Cleaning up intermedium files... ")
+    i=1
+    while i <= 8:
+        os.remove(f"{os.path.join(args.folder, f"int.{i}.csv")}")
+        i+=1
