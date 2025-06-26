@@ -1,14 +1,14 @@
 # import pandas with shortcut 'pd'
 import pandas as pd  
 import argparse
-import csv
+import os
 
 # Initialize parser
 parser = argparse.ArgumentParser(description="Initializing the parser")
 
 parser.add_argument("-n", "--file", type=str, help="")
 parser.add_argument("-l", "--list", type=str, help="")
-parser.add_argument("-d", "--folder", type=str, help="Folder in which the file will be output to")
+parser.add_argument("-f", "--folder", type=str, help="Folder in which the file will be output to")
 
 args = parser.parse_args()
 
@@ -32,7 +32,12 @@ if args.list:
 
 # display
 if args.folder:
-    print(f"Saving file in : {args.folder} folder.")
+    print(f"Saving file in : {os.path.join(args.folder, args.file.split("/")[-1])} ...")
+    # pd.to_excel(f"{ os.path.join(args.folder, args.file)}")
+    df = pd.DataFrame(data)
+    
+    with pd.ExcelWriter(f"{os.path.join(args.folder, args.file.split("/")[-1])}") as writer:
+        df.to_excel(writer, sheet_name="Order Analysis")
 else: 
     print("File has not been saved, please specify a folder to save the file to.")
 print(data)
