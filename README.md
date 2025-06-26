@@ -64,8 +64,9 @@ Deleting file: ./bmw.int.csv
 Deleting file: ./bmw.cleanedup.csv
 ```
 
-# To drop of colummns from a excel file.
+# To drop of colummns from an Excel file.
 
+## To process 020_IVS_Registrations_Order_Analysis.xlsx
 * ON Linux
 ```
 python drop-customer-fields-2294.py -n ./srcFiles/020_IVS_Registrations_Order_Analysis.xlsx  -l "Contact Name,Business Contact - End User Address Line 1,Business Contact - End User Address Line 2,Business Contact - End User Address Line 3,Business Contact - End User Town,Business Contact - End User County,Business Contact - End User Postcode,Purchaser Name,Business Contact - Purchaser Address Line 1,Business Contact - Purchaser Address Line 2,Business Contact - Purchaser Address Line 3,Business Contact - Purchaser Town,Business Contact - Purchaser County,Business Contact - Purchaser Postcode,Vehicle Detail - First Reg Keeper Name,Vehicle Detail - Reg Keeper Name"
@@ -77,3 +78,15 @@ python drop-customer-fields-2294.py -n ./srcFiles/020_IVS_Registrations_Order_An
 python drop-customer-fields-2294.py -n .\srcFiles\020_IVS_Registrations_Order_Analysis.xlsx  -l "Contact Name,Business Contact - End User Address Line 1,Business Contact - End User Address Line 2,Business Contact - End User Address Line 3,Business Contact - End User Town,Business Contact - End User County,Business Contact - End User Postcode,Purchaser Name,Business Contact - Purchaser Address Line 1,Business Contact - Purchaser Address Line 2,Business Contact - Purchaser Address Line 3,Business Contact - Purchaser Town,Business Contact - Purchaser County,Business Contact - Purchaser Postcode,Vehicle Detail - First Reg Keeper Name,Vehicle Detail - Reg Keeper Name"
 ```
 
+## To process 021_IVS_Orders_Orders_Extract.xlsx
+
+* ON Linux
+```
+python drop-customer-fields-2294.py -n ./srcFiles/021_IVS_Orders_Orders_Extract.xlsx  -l "Business Contact - Address Line 1,Business Contact - Address Line 2,Business Contact - Address Line 3,Business Contact - Town,Business Contact - County,Business Contact - Outward Postcode,Business Contact - Inward Postcode,Business Contact - Postcode,Purchaser Name,Contact Name"
+```
+
+* On Winows 
+
+```
+python drop-customer-fields-2294.py -n .\srcFiles\021_IVS_Orders_Orders_Extract.xlsx  -l "Business Contact - Address Line 1,Business Contact - Address Line 2,Business Contact - Address Line 3,Business Contact - Town,Business Contact - County,Business Contact - Outward Postcode,Business Contact - Inward Postcode,Business Contact - Postcode,Purchaser Name,Contact Name"
+```
