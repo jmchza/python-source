@@ -29,13 +29,25 @@ def prepare_create_satement(table_name, headers):
         
         return createQuery
     
+def read_sql_file(file):
+    # Open the file in read mode
+    file = open(file, "r")
+
+    # Read the entire content of the file
+    content = file.read()
+
+    # Close the file
+    file.close()
+    return content
+    
 # Initialize parser
 parser = argparse.ArgumentParser(description="Initializing the parser")
 
-parser.add_argument("-n", "--file", type=str, help="")
-parser.add_argument("-l", "--list", type=str, help="")
-parser.add_argument("-f", "--folder", type=str, help="Folder in which the file will be output to")
-parser.add_argument("-t", "--table", type=str, help="")
+parser.add_argument("-n", "--file", type=str, help="Source file to process")
+parser.add_argument("-l", "--list", type=str, help="Column list to drop of from original source file, separated by comma.")
+parser.add_argument("-f", "--folder", type=str, help="If you want to save it into a file too, please specify a folder to save the file to.")
+parser.add_argument("-t", "--table", type=str, help="you need to specify a table to import into, i.e: -t TABLE_NAME")
+parser.add_argument("-cs", "--createStatement", type=str, help="To pick uop the create staement from a sql file, uuse -ct parameter with the location of the file to use.")
 
 args = parser.parse_args()
 
@@ -66,13 +78,18 @@ else:
     print("If you want to save it into a file too, please specify a folder to save the file to with parameter -f")
     
 headers = df.head(0)
-new_headers = [re.sub(" ", "", str(cell)) for cell in [re.sub("-", "_", str(cell)) for cell in headers]]
+new_headers = [re.sub(" ", "", str(cell)) for cell in [re.sub("-", "_", str(cell)) for cell in [re1.replace("(", "") for re1 in [re.replace(")", "") for re in headers]]]]
 
+createSmt = ""
 if args.table:
-    
-    strippedHeaders = [d.replace("/","") for d in [q.replace("6%","") for q in [p.replace("9%", "") for p in [u.replace("?","") for u in [v.replace("20%","_") for v in [r.replace(".", "_") for r in [l.replace(")","") for l in [t.replace("]","") for t in [s.replace("[","") for s in new_headers]]]]]]]]]
-    print(f"strippedHeaders: {strippedHeaders}")
-    createSmt = prepare_create_satement(args.table, strippedHeaders)
+    if args.createStatement:
+        createSmt = read_sql_file(args.createStatement)
+        print(createSmt)
+    else:
+        strippedHeaders = [d.replace("/","") for d in [q.replace("6%","") for q in [p.replace("9%", "") for p in [u.replace("?","") for u in [v.replace("20%","_") for v in [r.replace(".", "_") for r in [t.replace("]","") for t in [s.replace("[","") for s in new_headers]]]]]]]]
+        print(f"strippedHeaders: {strippedHeaders}")
+        createSmt = prepare_create_satement(args.table, strippedHeaders)
+        print(createSmt)
 else:
     print("you need to specify a table to import into, i.e: -t TABLE_NAME")
     exit()
