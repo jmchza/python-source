@@ -7,8 +7,8 @@ import pyodbc
 
 def get_connection():
     # Define your connection parameters
-    server = os.getenv("SERVER_NAME", "sw341262.bmwgroup.net\\nonprod01")
-    database = os.getenv("SERVER_DB", "bmwuk_network_performance_database_test")
+    server = os.getenv("SERVER_NAME", "set-me-up-in-env-vars")
+    database = os.getenv("SERVER_DB", "set-me-up-in-env-vars")
     #username = os.getenv("SERVER_USER", "username")
     #password = os.getenv("SERVER_PW", "password")
  
