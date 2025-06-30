@@ -54,53 +54,53 @@ if args.list:
     for el in args.list.split(","):
         data.pop(el)
 
+df = pd.DataFrame(data)
 # display
 if args.folder:
-    print(f"Saving file in : {os.path.join(args.folder, args.file.split("/")[-1])} ...")
-    df = pd.DataFrame(data)
+    fileLocation = os.path.join(args.folder, args.file.split("/")[-1])
+    print(f"Saving file in : {fileLocation} ...")
     
-    headers = df.head(0)
-    with pd.ExcelWriter(f"{os.path.join(args.folder, args.file.split("/")[-1])}") as writer:
+    with pd.ExcelWriter(fileLocation) as writer:
         df.to_excel(writer)
-    
-    new_headers = [re.sub("-", "_", str(cell)) for cell in headers]
-    new_headers2 = [re.sub(" ", "", str(cell)) for cell in new_headers]
-    
-    if args.table:
-        
-        strippedHeaders = [d.replace("/","") for d in [q.replace("6%","") for q in [p.replace("9%", "") for p in [u.replace("?","") for u in [v.replace("20%","_") for v in [r.replace(".", "_") for r in [l.replace(")","") for l in [t.replace("]","") for t in [s.replace("[","") for s in new_headers2]]]]]]]]]
-        
-        createSmt = prepare_create_satement(args.table, strippedHeaders)
-    else:
-        print("you need to specify a table to import into, i.e: -t TABLE_NAME")
-        exit()
-    
-    connection = get_connection()
-    
-    # Create a cursor object
-    cursor = connection.cursor()
-    
-    # Execute a query
-    cursor.execute(createSmt)
-    connection.commit()
-
-    vals = []
-    valsParameters = []
-    for i in range(len(df)):
-        for j in range(len(df.iloc[i].values)):
-            valsParameters.append("%s")
-            vals.append(df.iloc[i].values[j])
-        
-        insertQuery = f"INSERT INTO {args.table} {tuple(list(strippedHeaders))} VALUES {tuple(list(valsParameters))}"
-        # print(insertQuery)
-        
-        if i == 2:
-            cursor.execute(insertQuery, vals)
-            break
-    
-    connection.commit()
-    # Close the connection
-    connection.close()
 else:
-    print("File has not been saved, please specify a folder to save the file to.")
+    print("If you want to save it into a file too, please specify a folder to save the file to with parameter -f")
+    
+headers = df.head(0)
+new_headers = [re.sub(" ", "", str(cell)) for cell in [re.sub("-", "_", str(cell)) for cell in headers]]
+
+if args.table:
+    
+    strippedHeaders = [d.replace("/","") for d in [q.replace("6%","") for q in [p.replace("9%", "") for p in [u.replace("?","") for u in [v.replace("20%","_") for v in [r.replace(".", "_") for r in [l.replace(")","") for l in [t.replace("]","") for t in [s.replace("[","") for s in new_headers]]]]]]]]]
+    print(f"strippedHeaders: {strippedHeaders}")
+    createSmt = prepare_create_satement(args.table, strippedHeaders)
+else:
+    print("you need to specify a table to import into, i.e: -t TABLE_NAME")
+    exit()
+
+connection = get_connection()
+
+# Create a cursor object
+cursor = connection.cursor()
+
+# Execute a query
+cursor.execute(createSmt)
+connection.commit()
+
+vals = []
+valsParameters = []
+for i in range(len(df)):
+    for j in range(len(df.iloc[i].values)):
+        valsParameters.append("%s")
+        vals.append(df.iloc[i].values[j])
+    
+    insertQuery = f"INSERT INTO {args.table} {tuple(list(strippedHeaders))} VALUES {tuple(list(valsParameters))}"
+    # print(insertQuery)
+    
+    if i == 2:
+        cursor.execute(insertQuery, vals)
+        break
+
+connection.commit()
+# Close the connection
+connection.close()
 # print(data)
