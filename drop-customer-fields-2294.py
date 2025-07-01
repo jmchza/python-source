@@ -82,17 +82,17 @@ new_headers = [re.sub(" ", "", str(cell)) for cell in [re.sub("-", "_", str(cell
 
 createSmt = ""
 if args.table:
-    if args.createStatement:
-        createSmt = read_sql_file(args.createStatement)
-        print(createSmt)
-    else:
         strippedHeaders = [d.replace("/","") for d in [q.replace("6%","") for q in [p.replace("9%", "") for p in [u.replace("?","") for u in [v.replace("20%","_") for v in [r.replace(".", "_") for r in [t.replace("]","") for t in [s.replace("[","") for s in new_headers]]]]]]]]
         print(f"strippedHeaders: {strippedHeaders}")
         createSmt = prepare_create_satement(args.table, strippedHeaders)
         print(createSmt)
 else:
-    print("you need to specify a table to import into, i.e: -t TABLE_NAME")
-    exit()
+    print("You can specify a table to import into, i.e: -t TABLE_NAME or use the -cs parameter to pass a sql file instead.")
+
+if args.createStatement:
+    createSmt = read_sql_file(args.createStatement)
+    print(createSmt)
+# else:
 
 connection = get_connection()
 
