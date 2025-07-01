@@ -39,6 +39,9 @@ def read_sql_file(file):
     # Close the file
     file.close()
     return content
+
+def strip_and_normalize_headers(headers):
+    return [d.replace("/","") for d in [q.replace("6%","") for q in [p.replace("9%", "") for p in [u.replace("?","") for u in [v.replace("20%","_") for v in [r.replace(".", "_") for r in [t.replace("]","") for t in [s.replace("[","") for s in headers]]]]]]]]
     
 # Initialize parser
 parser = argparse.ArgumentParser(description="Initializing the parser")
@@ -83,7 +86,7 @@ new_headers = [re.sub(" ", "", str(cell)) for cell in [re.sub("-", "_", str(cell
 createSmt = ""
 table = ""
 if args.table:
-        strippedHeaders = [d.replace("/","") for d in [q.replace("6%","") for q in [p.replace("9%", "") for p in [u.replace("?","") for u in [v.replace("20%","_") for v in [r.replace(".", "_") for r in [t.replace("]","") for t in [s.replace("[","") for s in new_headers]]]]]]]]
+        strippedHeaders = strip_and_normalize_headers(new_headers)
         print(f"strippedHeaders: {strippedHeaders}")
         createSmt = prepare_create_satement(args.table, strippedHeaders)
         print(createSmt)
@@ -108,6 +111,8 @@ connection.commit()
 vals = []
 valsParameters = []
 print(f"Inserting records into {table}...")
+strippedHeaders = strip_and_normalize_headers(new_headers)
+
 for i in range(len(df)):
     for j in range(len(df.iloc[i].values)):
         valsParameters.append("%s")
