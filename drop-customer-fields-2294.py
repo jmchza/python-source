@@ -81,6 +81,7 @@ headers = df.head(0)
 new_headers = [re.sub(" ", "", str(cell)) for cell in [re.sub("-", "_", str(cell)) for cell in [re1.replace("(", "") for re1 in [re.replace(")", "") for re in headers]]]]
 
 createSmt = ""
+table = ""
 if args.table:
         strippedHeaders = [d.replace("/","") for d in [q.replace("6%","") for q in [p.replace("9%", "") for p in [u.replace("?","") for u in [v.replace("20%","_") for v in [r.replace(".", "_") for r in [t.replace("]","") for t in [s.replace("[","") for s in new_headers]]]]]]]]
         print(f"strippedHeaders: {strippedHeaders}")
@@ -92,7 +93,8 @@ else:
 if args.createStatement:
     createSmt = read_sql_file(args.createStatement)
     print(createSmt)
-# else:
+    ff = createSmt.split(" ")
+    table = ff[2]
 
 connection = get_connection()
 
@@ -105,12 +107,13 @@ connection.commit()
 
 vals = []
 valsParameters = []
+print(f"Inserting records into {table}...")
 for i in range(len(df)):
     for j in range(len(df.iloc[i].values)):
         valsParameters.append("%s")
         vals.append(df.iloc[i].values[j])
     
-    insertQuery = f"INSERT INTO {args.table} {tuple(list(strippedHeaders))} VALUES {tuple(list(valsParameters))}"
+    insertQuery = f"INSERT INTO {table} {tuple(list(strippedHeaders))} VALUES {tuple(list(valsParameters))}"
     # print(insertQuery)
     
     if i == 2:

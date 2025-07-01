@@ -1,5 +1,4 @@
-CREATE TABLE
-    temp_table (
+CREATE TABLE temp_table (
         VehicleDetail_FullVINCode varchar(255),
         Model_BrandCode varchar(255),
         VehicleDetail_RegMonth varchar(255),

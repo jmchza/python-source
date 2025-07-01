@@ -1,5 +1,4 @@
-CREATE TABLE
-    TEMP_TABLE (
+CREATE TABLE TEMP_TABLE (
         Order_GBOrderNoCode varchar(255),
         VehicleDetail_ChassisNoCode varchar(255),
         Dealer_NSCMarketAreaCode varchar(255),
