@@ -56,8 +56,6 @@ args = parser.parse_args()
 
 if args.file:
     print(f"Processing src file: {args.file} .....")
-if args.list:
-    print(f"Processing Column list: {args.list} .....")
 
 # read_csv function which is used to read the required CSV file
 data = pd.read_excel(args.file, sheet_name=0)
@@ -66,6 +64,7 @@ headers = data.head(0)
 
 # drop function which is used in removing or deleting rows or columns from the CSV files
 if args.list:
+    print(f"Processing Column list: {args.list} .....")
     for el in args.list.split(","):
         data.pop(el)
 
