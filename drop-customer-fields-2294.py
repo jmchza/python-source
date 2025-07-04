@@ -5,6 +5,10 @@ import os
 import re
 import pyodbc
 
+from sqlalchemy import create_engine
+import urllib
+
+
 def get_connection():
     # Define your connection parameters
     server = os.getenv("SERVER_NAME", "set-me-up-in-env-vars")
@@ -69,6 +73,9 @@ if args.list:
         data.pop(el)
 
 df = pd.DataFrame(data)
+
+print(df)
+
 # display
 if args.folder:
     fileLocation = os.path.join(args.folder, args.file.split("/")[-1])
@@ -80,6 +87,7 @@ else:
     print("If you want to save it into a file too, please specify a folder to save the file to with parameter -f")
     
 headers = df.head(0)
+print(headers)
 new_headers = [re.sub(" ", "", str(cell)) for cell in [re.sub("-", "_", str(cell)) for cell in [re1.replace("(", "") for re1 in [re.replace(")", "") for re in headers]]]]
 
 createSmt = ""
@@ -94,37 +102,39 @@ else:
 
 if args.createStatement:
     createSmt = read_sql_file(args.createStatement)
-    print(createSmt)
+    # print(createSmt)
     ff = createSmt.split(" ")
     table = ff[2]
 
-connection = get_connection()
+# connection = get_connection()
 
-# Create a cursor object
-cursor = connection.cursor()
+# # Create a cursor object
+# cursor = connection.cursor()
 
-# Execute a query
-cursor.execute(createSmt)
-connection.commit()
+# # Execute a query
+# cursor.execute(createSmt)
+# connection.commit()       
 
 vals = []
 valsParameters = []
 print(f"Inserting records into {table}...")
-strippedHeaders = strip_and_normalize_headers(new_headers)
+# strippedHeaders = strip_and_normalize_headers(new_headers)
 
-for i in range(len(df)):
-    for j in range(len(df.iloc[i].values)):
-        valsParameters.append("%s")
-        vals.append(df.iloc[i].values[j])
+server = os.getenv("SERVER_NAME", "localhost")
+database = os.getenv("SERVER_DB", "temp")
+username = os.getenv("SERVER_USER", "username")
+password = os.getenv("SERVER_PW", "password")
     
-    insertQuery = f"INSERT INTO {table} {tuple(list(strippedHeaders))} VALUES {tuple(list(valsParameters))}"
-    # print(insertQuery)
-    
-    if i == 2:
-        cursor.execute(insertQuery, vals)
-        break
+params = urllib.parse.quote_plus(
+    "DRIVER={ODBC Driver 17 for SQL Server};"
+    f"SERVER={server}"
+    f"DATABASE={database}"
+    f"UID={username};"
+    f"PWD={password}"
+)
 
-connection.commit()
-# Close the connection
-connection.close()
-# print(data)
+# Create the engine
+engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
+
+
+df.to_sql(table, engine, if_exists="replace",index=False)
