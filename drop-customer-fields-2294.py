@@ -4,9 +4,8 @@ import argparse
 import os
 import re
 import pyodbc
-
 from sqlalchemy import create_engine
-import urllib
+
 
 
 def get_connection():
@@ -74,8 +73,6 @@ if args.list:
 
 df = pd.DataFrame(data)
 
-print(df)
-
 # display
 if args.folder:
     fileLocation = os.path.join(args.folder, args.file.split("/")[-1])
@@ -87,33 +84,22 @@ else:
     print("If you want to save it into a file too, please specify a folder to save the file to with parameter -f")
     
 headers = df.head(0)
-print(headers)
+
 new_headers = [re.sub(" ", "", str(cell)) for cell in [re.sub("-", "_", str(cell)) for cell in [re1.replace("(", "") for re1 in [re.replace(")", "") for re in headers]]]]
 
 createSmt = ""
 table = ""
 if args.table:
         strippedHeaders = strip_and_normalize_headers(new_headers)
-        print(f"strippedHeaders: {strippedHeaders}")
+        # print(f"strippedHeaders: {strippedHeaders}")
         createSmt = prepare_create_satement(args.table, strippedHeaders)
-        print(createSmt)
 else:
     print("You can specify a table to import into, i.e: -t TABLE_NAME or use the -cs parameter to pass a sql file instead.")
 
 if args.createStatement:
     createSmt = read_sql_file(args.createStatement)
-    # print(createSmt)
     ff = createSmt.split(" ")
     table = ff[2]
-
-# connection = get_connection()
-
-# # Create a cursor object
-# cursor = connection.cursor()
-
-# # Execute a query
-# cursor.execute(createSmt)
-# connection.commit()       
 
 vals = []
 valsParameters = []
@@ -125,16 +111,13 @@ database = os.getenv("SERVER_DB", "temp")
 username = os.getenv("SERVER_USER", "username")
 password = os.getenv("SERVER_PW", "password")
     
-params = urllib.parse.quote_plus(
-    "DRIVER={ODBC Driver 17 for SQL Server};"
-    f"SERVER={server}"
-    f"DATABASE={database}"
-    f"UID={username};"
-    f"PWD={password}"
-)
+params = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}"
 
 # Create the engine
 engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
-
-
-df.to_sql(table, engine, if_exists="replace",index=False)
+try:
+    df.to_sql(table, engine, if_exists="replace",index=False)
+except Exception as e:
+    print(f"Return Code=1 {e}")
+    exit()
+print("Returned CODE=0")
